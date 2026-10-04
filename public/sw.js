@@ -14,8 +14,12 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
-  if (e.request.url.includes("/api/")) return; // never cache API calls
+  // Never cache API calls or HTML navigation requests (to prevent broken routing on mobile)
+  if (e.request.url.includes("/api/") || e.request.mode === "navigate") {
+    return;
+  }
   e.respondWith(
     caches.match(e.request).then((cached) => cached || fetch(e.request))
   );
 });
+
