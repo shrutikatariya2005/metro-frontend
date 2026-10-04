@@ -11,7 +11,10 @@ export default function Profile() {
     dob: "",
     address: "",
     photo: "",
+    password: "",
   });
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
@@ -46,6 +49,7 @@ export default function Profile() {
       const updatedUser = await apiService.updateProfile(formData);
       setUser(updatedUser); // Update global auth context
       setMsg("Profile updated successfully!");
+      setFormData(prev => ({ ...prev, password: "" })); // Clear password field
     } catch (err) {
       setError(err.response?.data?.message || "Error updating profile");
     } finally {
@@ -140,6 +144,27 @@ export default function Profile() {
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               className="w-full rounded-sm border border-ink/20 px-4 py-2.5 text-sm focus:border-amber focus:outline-none resize-none"
             />
+          </div>
+
+          <div className="col-span-1 md:col-span-2 mt-4 pt-4 border-t border-ink/10">
+            <h3 className="font-display text-h3 font-700 text-ink mb-4">Change Password</h3>
+            <label className="block text-small font-medium text-ink mb-1">New Password (leave blank to keep current)</label>
+            <div className="relative flex items-center w-full md:w-1/2">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="w-full rounded-sm border border-ink/20 px-4 py-2.5 text-sm focus:border-amber focus:outline-none pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 text-slate hover:text-ink text-xs font-bold"
+              >
+                {showPassword ? "HIDE" : "SHOW"}
+              </button>
+            </div>
           </div>
 
           <div className="col-span-1 md:col-span-2 mt-4 flex justify-end">
