@@ -31,69 +31,80 @@ export default function AdminBookings() {
     }
   };
 
-  if (loading) return <p className="animate-pulse text-slate">Loading bookings...</p>;
+  if (loading) return <p style={{ color: "#94a3b8" }}>Loading bookings...</p>;
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-h2 font-800 text-ink">View & Manage Bookings</h1>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: "#f8fafc", margin: "0 0 4px 0" }}>Manage Bookings</h1>
+        <p style={{ fontSize: 13, color: "#94a3b8", margin: 0 }}>View passenger bookings and manage ticket statuses.</p>
       </div>
 
-      <div className="rounded-sm border border-ink/10 bg-white">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-ink/10 bg-platform-100">
-            <tr>
-              <th className="px-4 py-3 font-semibold text-ink">Ref ID</th>
-              <th className="px-4 py-3 font-semibold text-ink">Route</th>
-              <th className="px-4 py-3 font-semibold text-ink">Date</th>
-              <th className="px-4 py-3 font-semibold text-ink">Passengers</th>
-              <th className="px-4 py-3 font-semibold text-ink">Fare</th>
-              <th className="px-4 py-3 font-semibold text-ink">Status</th>
-              <th className="px-4 py-3 text-right font-semibold text-ink">Actions</th>
+      <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, overflow: "hidden" }}>
+        <table style={{ width: "100%", textAlign: "left", fontSize: 14, borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ background: "#0f172a", borderBottom: "1px solid #334155", color: "#cbd5e1" }}>
+              <th style={{ padding: "12px 16px", fontWeight: 600 }}>Ref ID</th>
+              <th style={{ padding: "12px 16px", fontWeight: 600 }}>Route</th>
+              <th style={{ padding: "12px 16px", fontWeight: 600 }}>Date</th>
+              <th style={{ padding: "12px 16px", fontWeight: 600 }}>Passengers</th>
+              <th style={{ padding: "12px 16px", fontWeight: 600 }}>Fare</th>
+              <th style={{ padding: "12px 16px", fontWeight: 600 }}>Status</th>
+              <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {bookings.map((b) => (
-              <tr key={b.id} className="border-b border-ink/5 last:border-0 hover:bg-ink/[0.02]">
-                <td className="px-4 py-3 font-mono font-medium">{b.bookingRef}</td>
-                <td className="px-4 py-3">{b.route?.summary || "Deleted Route"}</td>
-                <td className="px-4 py-3 text-slate">{b.travelDate}</td>
-                <td className="px-4 py-3 text-slate">{b.passengerCount}</td>
-                <td className="px-4 py-3 font-mono">₹{b.fareAmount}</td>
-                <td className="px-4 py-3 capitalize font-semibold">
-                  <span className={`rounded-sm px-2 py-0.5 text-xs ${
-                    b.status === "confirmed" ? "bg-green-100 text-green-700" :
-                    b.status === "completed" ? "bg-blue-100 text-blue-700" :
-                    b.status === "pending_payment" ? "bg-amber/20 text-amber-dark" :
-                    "bg-red-100 text-red-700"
-                  }`}>
+              <tr key={b.id} style={{ borderBottom: "1px solid #334155" }}>
+                <td style={{ padding: "12px 16px", fontFamily: "monospace", color: "#f8fafc" }}>{b.bookingRef}</td>
+                <td style={{ padding: "12px 16px", color: "#e2e8f0" }}>{b.route?.summary || "Deleted Route"}</td>
+                <td style={{ padding: "12px 16px", color: "#94a3b8" }}>{b.travelDate}</td>
+                <td style={{ padding: "12px 16px", color: "#94a3b8" }}>{b.passengerCount}</td>
+                <td style={{ padding: "12px 16px", fontFamily: "monospace", color: "#f8fafc" }}>₹{b.fareAmount}</td>
+                <td style={{ padding: "12px 16px" }}>
+                  <span style={{
+                    display: "inline-block",
+                    padding: "3px 10px",
+                    borderRadius: 4,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    textTransform: "capitalize",
+                    background:
+                      b.status === "confirmed" ? "#064e3b" :
+                      b.status === "completed" ? "#1e3a8a" :
+                      b.status === "pending_payment" ? "#78350f" : "#7f1d1d",
+                    color:
+                      b.status === "confirmed" ? "#6ee7b7" :
+                      b.status === "completed" ? "#93c5fd" :
+                      b.status === "pending_payment" ? "#fde68a" : "#fca5a5"
+                  }}>
                     {b.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td style={{ padding: "12px 16px", textAlign: "right" }}>
                   {b.status === "confirmed" && (
                     <>
                       <button
                         onClick={() => handleStatusUpdate(b.id, "completed")}
-                        className="mr-3 text-blue-600 hover:underline font-medium"
+                        style={{ background: "none", border: "none", color: "#60a5fa", cursor: "pointer", marginRight: 12, fontWeight: 500 }}
                       >
                         Complete
                       </button>
                       <button
                         onClick={() => handleStatusUpdate(b.id, "cancelled")}
-                        className="text-alert hover:underline font-medium"
+                        style={{ background: "none", border: "none", color: "#f87171", cursor: "pointer", fontWeight: 500 }}
                       >
                         Cancel
                       </button>
                     </>
                   )}
-                  {b.status !== "confirmed" && <span className="text-slate/50">N/A</span>}
+                  {b.status !== "confirmed" && <span style={{ color: "#64748b" }}>N/A</span>}
                 </td>
               </tr>
             ))}
             {bookings.length === 0 && (
               <tr>
-                <td colSpan="7" className="py-6 text-center text-slate">
+                <td colSpan="7" style={{ padding: "24px", textAlign: "center", color: "#94a3b8" }}>
                   No bookings found.
                 </td>
               </tr>
@@ -104,3 +115,4 @@ export default function AdminBookings() {
     </div>
   );
 }
+
