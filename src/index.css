@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* Fonts */
+  --font-display: "Archivo Expanded", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  /* Colors — transit signage palette */
+  --color-ink: #12213A;
+  --color-ink-soft: #1E3354;
+  --color-platform: #F7F8FA;
+  --color-platform-100: #EDEFF3;
+  --color-amber: #FFB100;
+  --color-amber-dark: #E09E00;
+  --color-route: #1F7A5C;
+  --color-route-soft: #E6F2ED;
+  --color-slate: #5B6472;
+  --color-alert: #D64545;
+  --color-alert-soft: #FBEAEA;
+
+  /* Fluid type scale — works from 375px to 2700px */
+  --text-hero: clamp(2.25rem, 1.6rem + 3vw, 5.25rem);
+  --text-h1: clamp(1.75rem, 1.45rem + 1.6vw, 3.25rem);
+  --text-h2: clamp(1.375rem, 1.2rem + 0.9vw, 2rem);
+  --text-h3: clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem);
+  --text-body: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+  --text-small: clamp(0.8125rem, 0.8rem + 0.1vw, 0.875rem);
+
+  /* Extra breakpoint for very large / ultra-wide monitors */
+  --breakpoint-3xl: 1920px;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-platform);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  scrollbar-width: thin;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
