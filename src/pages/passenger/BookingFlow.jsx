@@ -92,19 +92,24 @@ export default function BookingFlow() {
         fareAmount: fare.totalFare,
         travelDate,
       });
-      setBooking(result.booking);
-      setStep(4); // Go to Pay step
+      const createdBooking = result.booking;
+      setBooking(createdBooking);
+      setStep(4); // Move to payment screen
+      
+      // Auto-trigger Razorpay checkout
+      triggerPayment(createdBooking);
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Booking failed. Please try again.");
     }
   };
 
-  const handlePayNow = async () => {
-    if (!booking) return;
+  const triggerPayment = async (bookingToPay) => {
+    const targetBooking = bookingToPay || booking;
+    if (!targetBooking) return;
     setPaymentLoading(true);
     setError("");
     try {
-      const order = await paymentService.createOrder(booking._id || booking.id);
+      const order = await paymentService.createOrder(targetBooking._id || targetBooking.id);
       const paymentResponse = await paymentService.openCheckout({
         orderId: order.orderId,
         amount: order.amount,
@@ -117,7 +122,7 @@ export default function BookingFlow() {
       });
       const verified = await paymentService.verifyPayment({
         ...paymentResponse,
-        bookingId: booking._id || booking.id,
+        bookingId: targetBooking._id || targetBooking.id,
       });
       setTicket(verified.ticket);
       setBooking(verified.booking);
@@ -128,6 +133,9 @@ export default function BookingFlow() {
       setPaymentLoading(false);
     }
   };
+
+  const handlePayNow = () => triggerPayment(booking);
+
 
   const resetFlow = () => {
     setStep(1);

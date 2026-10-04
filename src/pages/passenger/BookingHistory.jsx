@@ -151,13 +151,15 @@ export default function BookingHistory() {
     }
   };
 
-  // Check if booking is within 2 hours of confirmation
+  // Check if booking is within 2 hours of payment/issue
   const isTicketActive = (b) => {
     if (b.status !== "confirmed") return false;
-    const createdAtTime = new Date(b.updatedAt || b.createdAt).getTime();
-    const expiryTime = createdAtTime + 2 * 60 * 60 * 1000;
+    // Use updatedAt (time payment was confirmed) or fallback to createdAt
+    const paymentTime = new Date(b.updatedAt || b.createdAt).getTime();
+    const expiryTime = paymentTime + 2 * 60 * 60 * 1000;
     return Date.now() < expiryTime;
   };
+
 
   if (loading) {
     return <p className="animate-pulse p-10 text-slate">Loading bookings...</p>;
