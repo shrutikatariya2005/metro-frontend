@@ -31,52 +31,52 @@ export default function AdminBookings() {
     }
   };
 
-  if (loading) return <p style={{ color: "#94a3b8" }}>Loading bookings...</p>;
+  if (loading) return <p style={{ color: "#5B6472" }}>Loading bookings...</p>;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <div>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: "#f8fafc", margin: "0 0 4px 0" }}>Manage Bookings</h1>
-        <p style={{ fontSize: 13, color: "#94a3b8", margin: 0 }}>View passenger bookings and manage ticket statuses.</p>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#12213A", fontFamily: "'Archivo Expanded', sans-serif", margin: "0 0 4px 0" }}>Manage Bookings</h1>
+        <p style={{ fontSize: 14, color: "#5B6472", margin: 0 }}>View passenger bookings and manage ticket statuses.</p>
       </div>
 
-      <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8, overflow: "hidden" }}>
+      <div style={{ background: "#FFFFFF", border: "1px solid #EDEFF3", borderRadius: 8, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
         <table style={{ width: "100%", textAlign: "left", fontSize: 14, borderCollapse: "collapse" }}>
           <thead>
-            <tr style={{ background: "#0f172a", borderBottom: "1px solid #334155", color: "#cbd5e1" }}>
-              <th style={{ padding: "12px 16px", fontWeight: 600 }}>Ref ID</th>
-              <th style={{ padding: "12px 16px", fontWeight: 600 }}>Route</th>
-              <th style={{ padding: "12px 16px", fontWeight: 600 }}>Date</th>
-              <th style={{ padding: "12px 16px", fontWeight: 600 }}>Passengers</th>
-              <th style={{ padding: "12px 16px", fontWeight: 600 }}>Fare</th>
-              <th style={{ padding: "12px 16px", fontWeight: 600 }}>Status</th>
-              <th style={{ padding: "12px 16px", fontWeight: 600, textAlign: "right" }}>Actions</th>
+            <tr style={{ background: "#EDEFF3", borderBottom: "1px solid #E2E8F0", color: "#12213A" }}>
+              <th style={{ padding: "12px 16px", fontWeight: 700 }}>Ref ID</th>
+              <th style={{ padding: "12px 16px", fontWeight: 700 }}>Route</th>
+              <th style={{ padding: "12px 16px", fontWeight: 700 }}>Date</th>
+              <th style={{ padding: "12px 16px", fontWeight: 700 }}>Passengers</th>
+              <th style={{ padding: "12px 16px", fontWeight: 700 }}>Fare</th>
+              <th style={{ padding: "12px 16px", fontWeight: 700 }}>Status</th>
+              <th style={{ padding: "12px 16px", fontWeight: 700, textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {bookings.map((b) => (
-              <tr key={b.id} style={{ borderBottom: "1px solid #334155" }}>
-                <td style={{ padding: "12px 16px", fontFamily: "monospace", color: "#f8fafc" }}>{b.bookingRef}</td>
-                <td style={{ padding: "12px 16px", color: "#e2e8f0" }}>{b.route?.summary || "Deleted Route"}</td>
-                <td style={{ padding: "12px 16px", color: "#94a3b8" }}>{b.travelDate}</td>
-                <td style={{ padding: "12px 16px", color: "#94a3b8" }}>{b.passengerCount}</td>
-                <td style={{ padding: "12px 16px", fontFamily: "monospace", color: "#f8fafc" }}>₹{b.fareAmount}</td>
+              <tr key={b.id} style={{ borderBottom: "1px solid #EDEFF3" }}>
+                <td style={{ padding: "12px 16px", fontFamily: "monospace", fontWeight: 600, color: "#12213A" }}>{b.bookingRef}</td>
+                <td style={{ padding: "12px 16px", color: "#1E3354" }}>{b.route?.summary || "Deleted Route"}</td>
+                <td style={{ padding: "12px 16px", color: "#5B6472" }}>{b.travelDate}</td>
+                <td style={{ padding: "12px 16px", color: "#5B6472" }}>{b.passengerCount}</td>
+                <td style={{ padding: "12px 16px", fontFamily: "monospace", fontWeight: 600, color: "#12213A" }}>₹{b.fareAmount}</td>
                 <td style={{ padding: "12px 16px" }}>
                   <span style={{
                     display: "inline-block",
                     padding: "3px 10px",
                     borderRadius: 4,
                     fontSize: 12,
-                    fontWeight: 600,
+                    fontWeight: 700,
                     textTransform: "capitalize",
                     background:
-                      b.status === "confirmed" ? "#064e3b" :
-                      b.status === "completed" ? "#1e3a8a" :
-                      b.status === "pending_payment" ? "#78350f" : "#7f1d1d",
+                      b.status === "confirmed" ? "#E6F2ED" :
+                      b.status === "completed" ? "#DBEAFE" :
+                      b.status === "pending_payment" ? "#FEF3C7" : "#FBEAEA",
                     color:
-                      b.status === "confirmed" ? "#6ee7b7" :
-                      b.status === "completed" ? "#93c5fd" :
-                      b.status === "pending_payment" ? "#fde68a" : "#fca5a5"
+                      b.status === "confirmed" ? "#1F7A5C" :
+                      b.status === "completed" ? "#1D4ED8" :
+                      b.status === "pending_payment" ? "#D97706" : "#D64545"
                   }}>
                     {b.status}
                   </span>
@@ -86,25 +86,25 @@ export default function AdminBookings() {
                     <>
                       <button
                         onClick={() => handleStatusUpdate(b.id, "completed")}
-                        style={{ background: "none", border: "none", color: "#60a5fa", cursor: "pointer", marginRight: 12, fontWeight: 500 }}
+                        style={{ background: "none", border: "none", color: "#1F7A5C", cursor: "pointer", marginRight: 12, fontWeight: 600 }}
                       >
                         Complete
                       </button>
                       <button
                         onClick={() => handleStatusUpdate(b.id, "cancelled")}
-                        style={{ background: "none", border: "none", color: "#f87171", cursor: "pointer", fontWeight: 500 }}
+                        style={{ background: "none", border: "none", color: "#D64545", cursor: "pointer", fontWeight: 600 }}
                       >
                         Cancel
                       </button>
                     </>
                   )}
-                  {b.status !== "confirmed" && <span style={{ color: "#64748b" }}>N/A</span>}
+                  {b.status !== "confirmed" && <span style={{ color: "#94A3B8" }}>N/A</span>}
                 </td>
               </tr>
             ))}
             {bookings.length === 0 && (
               <tr>
-                <td colSpan="7" style={{ padding: "24px", textAlign: "center", color: "#94a3b8" }}>
+                <td colSpan="7" style={{ padding: "24px", textAlign: "center", color: "#5B6472" }}>
                   No bookings found.
                 </td>
               </tr>
@@ -115,4 +115,5 @@ export default function AdminBookings() {
     </div>
   );
 }
+
 
