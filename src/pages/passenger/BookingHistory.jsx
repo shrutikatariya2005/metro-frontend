@@ -9,9 +9,14 @@ function TicketModal({ booking, onClose }) {
   const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
-    // Calculate 2 hour expiration from confirmation/created time
-    const createdAtTime = new Date(booking.updatedAt || booking.createdAt).getTime();
-    const expiryTime = createdAtTime + 2 * 60 * 60 * 1000;
+    // Priority: Use DB ticket.validUntil, else fallback to 2h from updatedAt/createdAt
+    let expiryTime;
+    if (booking.ticket?.validUntil) {
+      expiryTime = new Date(booking.ticket.validUntil).getTime();
+    } else {
+      const startTime = new Date(booking.updatedAt || booking.createdAt).getTime();
+      expiryTime = startTime + 2 * 60 * 60 * 1000;
+    }
 
     const updateTimer = () => {
       const now = Date.now();
@@ -37,11 +42,13 @@ function TicketModal({ booking, onClose }) {
 
   const qrPayload = JSON.stringify({
     ref: booking.bookingRef,
+    ticketRef: booking.ticket?.ticketRef || booking.bookingRef,
     route: booking.route?.summary,
     passengers: booking.passengerCount,
     fare: booking.fareAmount,
     date: booking.travelDate,
   });
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
@@ -154,11 +161,18 @@ export default function BookingHistory() {
   // Check if booking is within 2 hours of payment/issue
   const isTicketActive = (b) => {
     if (b.status !== "confirmed") return false;
-    // Use updatedAt (time payment was confirmed) or fallback to createdAt
+
+    // Use DB validUntil timestamp if available
+    if (b.ticket?.validUntil) {
+      return Date.now() < new Date(b.ticket.validUntil).getTime();
+    }
+
+    // Fallback: If payment happened within the last 2 hours
     const paymentTime = new Date(b.updatedAt || b.createdAt).getTime();
     const expiryTime = paymentTime + 2 * 60 * 60 * 1000;
     return Date.now() < expiryTime;
   };
+
 
 
   if (loading) {
