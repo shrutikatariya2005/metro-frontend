@@ -15,8 +15,9 @@ export default function BookingFlow() {
   const [destQuery, setDestQuery] = useState("");
   const [sourceId, setSourceId] = useState("");
   const [destinationId, setDestinationId] = useState("");
-  const [travelDate, setTravelDate] = useState(new Date().toISOString().split("T")[0]);
   const [travelTime, setTravelTime] = useState(""); // HH:MM
+  // Travel date is always TODAY — no date picker needed
+  const travelDate = new Date().toISOString().split("T")[0];
 
   // Schedule Step
   const [route, setRoute] = useState(null);
@@ -239,25 +240,15 @@ export default function BookingFlow() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-small font-medium text-ink">Travel date</label>
-                <input
-                  type="date"
-                  value={travelDate}
-                  onChange={(e) => setTravelDate(e.target.value)}
-                  className="mt-1 w-full rounded-sm border border-ink/15 px-4 py-2.5 text-body"
-                />
-              </div>
-              <div>
-                <label className="block text-small font-medium text-ink">Time (optional)</label>
-                <input
-                  type="time"
-                  value={travelTime}
-                  onChange={(e) => setTravelTime(e.target.value)}
-                  className="mt-1 w-full rounded-sm border border-ink/15 px-4 py-2.5 text-body"
-                />
-              </div>
+            <div>
+              <label className="block text-small font-medium text-ink">Preferred time (optional)</label>
+              <input
+                type="time"
+                value={travelTime}
+                onChange={(e) => setTravelTime(e.target.value)}
+                className="mt-1 w-full rounded-sm border border-ink/15 px-4 py-2.5 text-body"
+              />
+              <p className="mt-1 text-xs text-slate">Leave blank to see all available trains today</p>
             </div>
 
             <button
@@ -325,7 +316,7 @@ export default function BookingFlow() {
             <div className="rounded-sm bg-platform-100 p-4">
               <p className="text-body font-medium text-ink">{route.summary}</p>
               <div className="mt-2 grid grid-cols-2 gap-2 text-small text-slate">
-                <p>Date: {travelDate}</p>
+                <p>Date: Today ({travelDate})</p>
                 <p>Time: {selectedSchedule.departureTime}</p>
                 <p>Distance: {route.distanceKm} km</p>
                 <p>Stops: {route.stops}</p>
@@ -376,7 +367,7 @@ export default function BookingFlow() {
               <p className="font-display text-h3 font-700 tracking-wide text-ink">{booking.bookingRef}</p>
               <div className="mt-3 grid grid-cols-2 gap-2 text-small text-slate">
                 <p>Route: {route?.summary}</p>
-                <p>Date: {travelDate}</p>
+                <p>Date: Today ({travelDate})</p>
                 <p>Time: {selectedSchedule?.departureTime}</p>
                 <p>Passengers: {passengerCount}</p>
               </div>
