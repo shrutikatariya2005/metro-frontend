@@ -28,8 +28,9 @@ export class MetroRoute {
 }
 
 export class Booking {
-  constructor({ id, bookingRef, route, schedule, passengerCount, fareAmount, travelDate, status }) {
+  constructor({ id, bookingRef, route, schedule, passengerCount, fareAmount, travelDate, status, updatedAt, createdAt, ticket }) {
     this.id = id;
+    this._id = id; // alias for MongoDB _id compatibility
     this.bookingRef = bookingRef;
     this.route = route; // MetroRoute instance
     this.schedule = schedule; // Schedule object
@@ -37,6 +38,9 @@ export class Booking {
     this.fareAmount = fareAmount;
     this.travelDate = travelDate;
     this.status = status; // "confirmed" | "cancelled" | "completed"
+    this.updatedAt = updatedAt || null;
+    this.createdAt = createdAt || null;
+    this.ticket = ticket || null; // ticket object with validUntil
   }
 }
 export class Feedback {

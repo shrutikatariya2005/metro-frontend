@@ -172,16 +172,22 @@ class ApiService {
       passengerCount,
       travelDate,
     });
-    const b = res.data.data.booking;
-    return new Booking({
+    // Backend returns { booking: {...} } inside res.data.data
+    const raw = res.data.data;
+    const b = raw.booking || raw; // handle both response shapes
+    return {
       id: b._id,
+      _id: b._id,
       bookingRef: b.bookingRef,
       route,
+      schedule,
       passengerCount: b.passengerCount,
       fareAmount: b.fareAmount,
       travelDate: b.travelDate,
       status: b.status,
-    });
+      createdAt: b.createdAt,
+      updatedAt: b.updatedAt,
+    };
   }
 
   async getBookingHistory() {
@@ -193,8 +199,25 @@ class ApiService {
         const dest = b.route.destinationStation ? new Station({ id: b.route.destinationStation._id, ...b.route.destinationStation }) : null;
         route = new MetroRoute({ id: b.route._id, sourceStation: source, destinationStation: dest, ...b.route });
       }
-      return new Booking({ id: b._id, bookingRef: b.bookingRef, route, schedule: b.schedule, passengerCount: b.passengerCount, fareAmount: b.fareAmount, travelDate: b.travelDate, status: b.status });
+      return new Booking({
+        id: b._id,
+        bookingRef: b.bookingRef,
+        route,
+        schedule: b.schedule,
+        passengerCount: b.passengerCount,
+        fareAmount: b.fareAmount,
+        travelDate: b.travelDate,
+        status: b.status,
+        updatedAt: b.updatedAt,
+        createdAt: b.createdAt,
+        ticket: b.ticket || null,
+      });
     });
+  }
+
+  async cancelBooking(bookingRef) {
+    const res = await api.put(`/bookings/cancel/${bookingRef}`);
+    return res.data.data;
   }
 
   async submitFeedback({ rating, comments }) {

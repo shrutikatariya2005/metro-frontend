@@ -85,16 +85,15 @@ export default function BookingFlow() {
   const handleConfirmBooking = async () => {
     setError("");
     try {
-      const result = await apiService.createBooking({
+      const createdBooking = await apiService.createBooking({
         route,
         schedule: selectedSchedule,
         passengerCount,
         fareAmount: fare.totalFare,
         travelDate,
       });
-      const createdBooking = result.booking;
       setBooking(createdBooking);
-      setStep(4); // Move to Step 4 layout
+      setStep(4); // Move to Step 4 — payment auto-triggers via useEffect
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Booking failed. Please try again.");
     }
@@ -132,6 +131,14 @@ export default function BookingFlow() {
       setPaymentLoading(false);
     }
   };
+
+  // Auto-trigger Razorpay as soon as step 4 is reached and booking is set
+  useEffect(() => {
+    if (step === 4 && booking && !paymentLoading && !ticket) {
+      triggerPayment(booking);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, booking]);
 
   const handlePayNow = () => triggerPayment(booking);
 
