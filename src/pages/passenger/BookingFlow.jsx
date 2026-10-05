@@ -94,10 +94,7 @@ export default function BookingFlow() {
       });
       const createdBooking = result.booking;
       setBooking(createdBooking);
-      setStep(4); // Move to payment screen
-      
-      // Auto-trigger Razorpay checkout
-      triggerPayment(createdBooking);
+      setStep(4); // Move to Step 4 layout
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Booking failed. Please try again.");
     }
@@ -128,13 +125,16 @@ export default function BookingFlow() {
       setBooking(verified.booking);
       setStep(5);
     } catch (err) {
-      setError(err.message || "Payment failed. Please try again.");
+      if (err.message !== "Payment cancelled by user") {
+        setError(err.message || "Payment failed. Please try again.");
+      }
     } finally {
       setPaymentLoading(false);
     }
   };
 
   const handlePayNow = () => triggerPayment(booking);
+
 
 
   const resetFlow = () => {
