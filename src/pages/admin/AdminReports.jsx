@@ -13,11 +13,6 @@ export default function AdminReports() {
   const [customStart, setCustomStart] = useState("");
   const [customEnd, setCustomEnd] = useState("");
 
-  useEffect(() => {
-    fetchReports();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dateRangeType, customStart, customEnd]);
-
   const fetchReports = async () => {
     try {
       setLoading(true);
@@ -62,6 +57,11 @@ export default function AdminReports() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchReports();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateRangeType, customStart, customEnd]);
 
   const exportToExcel = (data, filename, title) => {
     const dataWithSrNo = data.map((item, i) => ({ "Sr. No.": i + 1, ...item }));
