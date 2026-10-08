@@ -184,6 +184,7 @@ export default function AdminReports() {
             </div>
           )}
         </div>
+        </div>
       </div>
 
       {loading && !summary ? (
