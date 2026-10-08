@@ -258,18 +258,28 @@ class ApiService {
   }
 
   // --- Reports & Statistics ---
-  async getReportsSummary() {
-    const res = await api.get("/reports/summary");
+  async getReportsSummary(startDate, endDate) {
+    const params = new URLSearchParams();
+    if (startDate) params.append("startDate", startDate);
+    if (endDate) params.append("endDate", endDate);
+    const res = await api.get(`/reports/summary?${params.toString()}`);
     return res.data.data;
   }
 
-  async getPopularRoutes(limit = 10) {
-    const res = await api.get(`/reports/popular-routes?limit=${limit}`);
+  async getPopularRoutes(limit = 10, startDate, endDate) {
+    const params = new URLSearchParams();
+    params.append("limit", limit);
+    if (startDate) params.append("startDate", startDate);
+    if (endDate) params.append("endDate", endDate);
+    const res = await api.get(`/reports/popular-routes?${params.toString()}`);
     return res.data.data;
   }
 
-  async getRevenueByDate(days = 30) {
-    const res = await api.get(`/reports/revenue?days=${days}`);
+  async getRevenueByDate(startDate, endDate) {
+    const params = new URLSearchParams();
+    if (startDate) params.append("startDate", startDate);
+    if (endDate) params.append("endDate", endDate);
+    const res = await api.get(`/reports/revenue?${params.toString()}`);
     return res.data.data;
   }
 

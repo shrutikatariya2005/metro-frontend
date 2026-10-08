@@ -10,20 +10,33 @@ const api = axios.create({
 });
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("metro_user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+  // If we already have a user from localStorage, don't block the UI with loading
+  const [loading, setLoading] = useState(!localStorage.getItem("metro_user"));
 
   useEffect(() => {
+    // Background verify session
     api.get("/auth/me")
-      .then((res) => setUser(res.data.data))
-      .catch(() => setUser(null))
+      .then((res) => {
+        setUser(res.data.data);
+        localStorage.setItem("metro_user", JSON.stringify(res.data.data));
+      })
+      .catch(() => {
+        setUser(null);
+        localStorage.removeItem("metro_user");
+      })
       .finally(() => setLoading(false));
   }, []);
 
   const login = async (email, password) => {
     const res = await api.post("/auth/login", { email, password });
-    setUser(res.data.data.user);
-    return res.data.data.user;
+    const loggedInUser = res.data.data.user;
+    setUser(loggedInUser);
+    localStorage.setItem("metro_user", JSON.stringify(loggedInUser));
+    return loggedInUser;
   };
 
   const register = async (data) => {
@@ -32,8 +45,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await api.post("/auth/logout");
+    await api.post("/auth/logout").catch(() => {});
     setUser(null);
+    localStorage.removeItem("metro_user");
   };
 
   const requestOtp = async (email) => {
@@ -42,8 +56,10 @@ export const AuthProvider = ({ children }) => {
 
   const resetPassword = async (data) => {
     const res = await api.post("/auth/reset-password", data);
-    setUser(res.data.data.user);
-    return res.data.data.user;
+    const resetUser = res.data.data.user;
+    setUser(resetUser);
+    localStorage.setItem("metro_user", JSON.stringify(resetUser));
+    return resetUser;
   };
 
   return (

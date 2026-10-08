@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import apiService from "../../services/ApiService";
 import { useAuth } from "../../context/AuthContext";
+import * as XLSX from "xlsx";
 
 export default function AdminUsers() {
   const { user: currentUser } = useAuth();
@@ -75,6 +76,26 @@ export default function AdminUsers() {
     }
   };
 
+  const exportUsers = () => {
+    if (!users.length) return alert("No users to export");
+    const data = users.map((u) => ({
+      Name: u.name,
+      Email: u.email,
+      Contact: u.contact || "N/A",
+      Role: u.role,
+      Status: u.isActive ? "Active" : "Inactive",
+      JoinedDate: new Date(u.createdAt).toLocaleDateString(),
+      Aadhar: u.aadhar || "N/A",
+      PAN: u.pan || "N/A",
+      Qualification: u.qualification || "N/A",
+      Address: u.address || "N/A",
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Users");
+    XLSX.writeFile(wb, `Users_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
   if (loading) return <p className="animate-pulse text-slate">Loading users...</p>;
 
   const visibleUsers = users.filter(u => u.role !== "admin" || u._id === currentUser.id);
@@ -83,12 +104,20 @@ export default function AdminUsers() {
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-h2 font-800 text-ink">Manage Users</h1>
-        <button
-          onClick={() => setShowModal(true)}
-          className="rounded-sm bg-ink px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-ink-soft"
-        >
-          + Create Admin
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={exportUsers}
+            className="rounded-sm bg-platform-100 px-4 py-2 text-sm font-semibold text-route transition-colors hover:bg-platform-200"
+          >
+            Export to Excel
+          </button>
+          <button
+            onClick={() => setShowModal(true)}
+            className="rounded-sm bg-ink px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-ink-soft"
+          >
+            + Create Admin
+          </button>
+        </div>
       </div>
       <div className="rounded-sm border border-ink/10 bg-white">
         <table className="w-full text-left text-sm">
