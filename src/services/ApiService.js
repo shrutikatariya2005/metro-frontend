@@ -283,6 +283,14 @@ class ApiService {
     return res.data.data;
   }
 
+  async getDetailedBookings(startDate, endDate) {
+    const params = new URLSearchParams();
+    if (startDate) params.append("startDate", startDate);
+    if (endDate) params.append("endDate", endDate);
+    const res = await api.get(`/reports/detailed-bookings?${params.toString()}`);
+    return res.data.data;
+  }
+
   async getFeedbackStats() {
     const res = await api.get("/reports/feedback-stats");
     return res.data.data;

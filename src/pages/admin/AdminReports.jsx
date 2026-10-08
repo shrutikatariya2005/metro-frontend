@@ -63,8 +63,21 @@ export default function AdminReports() {
     }
   };
 
-  const exportToExcel = (data, filename) => {
-    const ws = XLSX.utils.json_to_sheet(data);
+  const exportToExcel = (data, filename, title) => {
+    const dataWithSrNo = data.map((item, i) => ({ "Sr. No.": i + 1, ...item }));
+    
+    const ws = XLSX.utils.json_to_sheet([]);
+    
+    const rangeText = dateRangeType === "custom" ? `${customStart} to ${customEnd}` : dateRangeType;
+    XLSX.utils.sheet_add_aoa(ws, [
+      [title],
+      [`Report Generated On: ${new Date().toLocaleString()}`],
+      [`Date Filter: ${rangeText}`],
+      []
+    ]);
+    
+    XLSX.utils.sheet_add_json(ws, dataWithSrNo, { origin: "A5" });
+    
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Report");
     XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0, 10)}.xlsx`);
@@ -77,7 +90,7 @@ export default function AdminReports() {
       Revenue: r.revenue,
       Bookings: r.bookings,
     }));
-    exportToExcel(data, "Revenue_Report");
+    exportToExcel(data, "Revenue_Report", "Daily Revenue Report");
   };
 
   const exportRoutes = () => {
@@ -87,7 +100,45 @@ export default function AdminReports() {
       Bookings: r.count,
       TotalRevenue: r.totalRevenue,
     }));
-    exportToExcel(data, "Popular_Routes_Report");
+    exportToExcel(data, "Popular_Routes_Report", "Route Wise Booking Report");
+  };
+
+  const exportDetailed = async () => {
+    try {
+      let startDate = "";
+      let endDate = new Date().toISOString().slice(0, 10);
+      const d = new Date();
+      if (dateRangeType === "7days") { d.setDate(d.getDate() - 7); startDate = d.toISOString().slice(0, 10); }
+      else if (dateRangeType === "30days") { d.setDate(d.getDate() - 30); startDate = d.toISOString().slice(0, 10); }
+      else if (dateRangeType === "monthly") { d.setDate(1); startDate = d.toISOString().slice(0, 10); }
+      else if (dateRangeType === "yearly") { d.setMonth(0, 1); startDate = d.toISOString().slice(0, 10); }
+      else if (dateRangeType === "custom") { startDate = customStart; endDate = customEnd; }
+
+      const bookings = await apiService.getDetailedBookings(startDate, endDate);
+      if (!bookings || bookings.length === 0) return alert("No bookings found in this range");
+
+      const data = bookings.map(b => ({
+        "Booking Ref": b.bookingRef,
+        "Travel Date": b.travelDate,
+        "Booking Date": new Date(b.createdAt).toLocaleString(),
+        "Route": `${b.route.sourceStation.stationName} to ${b.route.destinationStation.stationName}`,
+        "Schedule Time": b.schedule ? `${b.schedule.departureTime} - ${b.schedule.arrivalTime}` : "N/A",
+        "Passengers": b.passengerCount,
+        "Fare (₹)": b.fareAmount,
+        "Payment Method": b.paymentInfo ? b.paymentInfo.method.toUpperCase() : "N/A",
+        "Transaction ID": b.paymentInfo ? b.paymentInfo.transactionId : "N/A",
+        "User Name": b.user.name,
+        "User Email": b.user.email,
+        "User Contact": b.user.contact || "N/A",
+        "User PAN": b.user.pan || "N/A",
+        "User Aadhar": b.user.aadhar || "N/A",
+        "User Address": b.user.address || "N/A",
+      }));
+      exportToExcel(data, "Detailed_Bookings_Report", "Detailed Booking Normal Report");
+    } catch (err) {
+      console.error(err);
+      alert("Error exporting detailed report");
+    }
   };
 
   return (
@@ -95,6 +146,13 @@ export default function AdminReports() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="font-display text-h2 font-800 text-ink">Reports & Statistics</h1>
         
+        <div className="flex items-center gap-4">
+          <button
+            onClick={exportDetailed}
+            className="rounded bg-ink px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-ink-soft shadow-sm"
+          >
+            Download Normal Report
+          </button>
         <div className="flex flex-wrap items-center gap-3 bg-white p-2 rounded-sm border border-ink/10 shadow-sm">
           <select
             value={dateRangeType}

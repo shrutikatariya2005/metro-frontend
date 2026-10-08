@@ -78,7 +78,8 @@ export default function AdminUsers() {
 
   const exportUsers = () => {
     if (!users.length) return alert("No users to export");
-    const data = users.map((u) => ({
+    const data = users.map((u, i) => ({
+      "Sr. No.": i + 1,
       Name: u.name,
       Email: u.email,
       Contact: u.contact || "N/A",
@@ -90,7 +91,17 @@ export default function AdminUsers() {
       Qualification: u.qualification || "N/A",
       Address: u.address || "N/A",
     }));
-    const ws = XLSX.utils.json_to_sheet(data);
+
+    const ws = XLSX.utils.json_to_sheet([]);
+    
+    XLSX.utils.sheet_add_aoa(ws, [
+      ["All Users Report"],
+      [`Report Generated On: ${new Date().toLocaleString()}`],
+      []
+    ]);
+    
+    XLSX.utils.sheet_add_json(ws, data, { origin: "A4" });
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Users");
     XLSX.writeFile(wb, `Users_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
