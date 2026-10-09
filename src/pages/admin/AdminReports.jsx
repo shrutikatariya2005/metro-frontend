@@ -342,7 +342,7 @@ export default function AdminReports() {
                   {monthlyData.map((d, i) => {
                     const height = Math.max((d.revenue / maxRev) * 100, 5);
                     return (
-                      <div key={i} className="group relative flex flex-1 flex-col items-center justify-end min-w-[40px] max-w-[100px]">
+                      <div key={i} className="group relative flex h-full flex-1 flex-col items-center justify-end min-w-[40px] max-w-[100px]">
                         <div
                           className="w-full rounded-t-sm bg-route transition-all hover:bg-route-soft"
                           style={{ height: `${height}%` }}
