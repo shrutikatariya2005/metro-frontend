@@ -7,7 +7,32 @@ import { useAuth } from "../../context/AuthContext";
 const STEPS = ["Search", "Select Schedule", "Confirm", "Pay", "Ticket"];
 
 export default function BookingFlow() {
+  const [maintenance, setMaintenance] = useState(false);
   const [step, setStep] = useState(1);
+
+  useEffect(() => {
+    const settings = localStorage.getItem("adminSettings");
+    if (settings) {
+      try {
+        const parsed = JSON.parse(settings);
+        if (parsed.maintenanceMode) setMaintenance(true);
+      } catch(e) {}
+    }
+    
+    const handleStorage = () => {
+      const s = localStorage.getItem("adminSettings");
+      if (s) {
+        try {
+          const parsed = JSON.parse(s);
+          setMaintenance(!!parsed.maintenanceMode);
+        } catch(e) {}
+      } else {
+        setMaintenance(false);
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
 
   // Search Step
   const [stations, setStations] = useState([]);
@@ -160,6 +185,19 @@ export default function BookingFlow() {
     setError("");
     setPaymentLoading(false);
   };
+
+  if (maintenance) {
+    return (
+      <div className="mx-auto flex max-w-3xl flex-col items-center justify-center p-16 text-center mt-20 rounded-sm border border-amber/20 bg-amber/5">
+        <span className="text-4xl mb-4">🚧</span>
+        <h1 className="font-display text-3xl font-800 text-amber-dark mb-3">Booking System Under Maintenance</h1>
+        <p className="text-slate">
+          We are currently upgrading our ticketing systems to serve you better. 
+          New ticket bookings are temporarily paused, but you can still view your past bookings in your profile.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <section className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 lg:px-10 3xl:px-16">
