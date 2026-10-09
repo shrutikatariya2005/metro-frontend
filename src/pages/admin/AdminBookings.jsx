@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import apiService from "../../services/ApiService";
+import * as XLSX from "xlsx";
 
 export default function AdminBookings() {
   const [bookings, setBookings] = useState([]);
@@ -21,23 +22,53 @@ export default function AdminBookings() {
     }
   };
 
-  const handleStatusUpdate = async (id, status) => {
-    if (!window.confirm(`Are you sure you want to mark this booking as ${status}?`)) return;
-    try {
-      await apiService.updateBookingStatus(id, status);
-      fetchBookings();
-    } catch (err) {
-      alert(err.response?.data?.message || "Error updating booking status");
-    }
+  const exportBookings = () => {
+    if (!bookings.length) return alert("No bookings to export");
+    const data = bookings.map((b, i) => ({
+      "Sr. No.": i + 1,
+      "Ref ID": b.bookingRef,
+      "Route": b.route?.summary || "Deleted Route",
+      "Passenger Name": b.user?.name || "N/A",
+      "Email": b.user?.email || "N/A",
+      "Contact": b.user?.contact || "N/A",
+      "PAN": b.user?.pan || "N/A",
+      "Aadhar": b.user?.aadhar || "N/A",
+      "Address": b.user?.address || "N/A",
+      "Qualification": b.user?.qualification || "N/A",
+      "Ticket Price (₹)": b.fareAmount,
+      "Passengers": b.passengerCount,
+      "Status": b.status,
+      "Date": b.travelDate,
+    }));
+
+    const ws = XLSX.utils.json_to_sheet([]);
+    XLSX.utils.sheet_add_aoa(ws, [
+      ["All Bookings Report"],
+      [`Report Generated On: ${new Date().toLocaleString()}`],
+      []
+    ]);
+    XLSX.utils.sheet_add_json(ws, data, { origin: "A4" });
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Bookings");
+    XLSX.writeFile(wb, `Bookings_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
   if (loading) return <p style={{ color: "#5B6472" }}>Loading bookings...</p>;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#12213A", fontFamily: "'Archivo Expanded', sans-serif", margin: "0 0 4px 0" }}>Manage Bookings</h1>
-        <p style={{ fontSize: 14, color: "#5B6472", margin: 0 }}>View passenger bookings and manage ticket statuses.</p>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: "#12213A", fontFamily: "'Archivo Expanded', sans-serif", margin: "0 0 4px 0" }}>View Bookings</h1>
+          <p style={{ fontSize: 14, color: "#5B6472", margin: 0 }}>View passenger bookings across the metro network.</p>
+        </div>
+        <button
+          onClick={exportBookings}
+          style={{ background: "#12213A", color: "#FFFFFF", padding: "8px 16px", borderRadius: 4, border: "none", cursor: "pointer", fontWeight: 600, fontSize: 14 }}
+        >
+          Export Excel
+        </button>
       </div>
 
       <div style={{ background: "#FFFFFF", border: "1px solid #EDEFF3", borderRadius: 8, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
@@ -50,7 +81,6 @@ export default function AdminBookings() {
               <th style={{ padding: "12px 16px", fontWeight: 700 }}>Passengers</th>
               <th style={{ padding: "12px 16px", fontWeight: 700 }}>Fare</th>
               <th style={{ padding: "12px 16px", fontWeight: 700 }}>Status</th>
-              <th style={{ padding: "12px 16px", fontWeight: 700, textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -81,30 +111,11 @@ export default function AdminBookings() {
                     {b.status}
                   </span>
                 </td>
-                <td style={{ padding: "12px 16px", textAlign: "right" }}>
-                  {b.status === "confirmed" && (
-                    <>
-                      <button
-                        onClick={() => handleStatusUpdate(b.id, "completed")}
-                        style={{ background: "none", border: "none", color: "#1F7A5C", cursor: "pointer", marginRight: 12, fontWeight: 600 }}
-                      >
-                        Complete
-                      </button>
-                      <button
-                        onClick={() => handleStatusUpdate(b.id, "cancelled")}
-                        style={{ background: "none", border: "none", color: "#D64545", cursor: "pointer", fontWeight: 600 }}
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  )}
-                  {b.status !== "confirmed" && <span style={{ color: "#94A3B8" }}>N/A</span>}
-                </td>
               </tr>
             ))}
             {bookings.length === 0 && (
               <tr>
-                <td colSpan="7" style={{ padding: "24px", textAlign: "center", color: "#5B6472" }}>
+                <td colSpan="6" style={{ padding: "24px", textAlign: "center", color: "#5B6472" }}>
                   No bookings found.
                 </td>
               </tr>
