@@ -318,7 +318,7 @@ export default function AdminReports() {
           {/* Revenue Graph */}
           <div className="rounded-sm border border-ink/10 bg-white p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display text-lg font-700">Revenue Breakdown (Day-wise)</h2>
+              <h2 className="font-display text-lg font-700">Monthly Revenue Chart</h2>
               <button
                 onClick={exportRevenue}
                 className="rounded bg-platform-100 px-3 py-1.5 text-xs font-medium text-route transition-colors hover:bg-platform-200"
@@ -326,29 +326,40 @@ export default function AdminReports() {
                 Export Excel
               </button>
             </div>
-            {revenue.length > 0 ? (
-              <div className="flex h-48 items-end gap-2 border-b border-l border-ink/10 p-2 overflow-x-auto custom-scrollbar pb-6">
-                {revenue.map((d, i) => {
-                  const maxRev = Math.max(...revenue.map((r) => r.revenue)) || 1;
-                  const height = Math.max((d.revenue / maxRev) * 100, 5);
-                  return (
-                    <div key={i} className="group relative flex flex-1 flex-col items-center justify-end min-w-[20px]">
-                      <div
-                        className="w-full max-w-[40px] rounded-t-sm bg-route transition-all hover:bg-route-soft"
-                        style={{ height: `${height}%` }}
-                      ></div>
-                      <p className="mt-2 origin-top-left -rotate-45 text-[10px] text-slate absolute top-full">
-                        {d.date.slice(5)}
-                      </p>
-                      {/* Tooltip */}
-                      <div className="absolute bottom-full mb-2 hidden whitespace-nowrap rounded bg-ink px-2 py-1 text-xs text-white group-hover:block z-10">
-                        ₹{d.revenue} ({d.bookings} bookings)
+            {revenue.length > 0 ? (() => {
+              const monthly = {};
+              revenue.forEach(r => {
+                const month = new Date(r.date).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+                if (!monthly[month]) monthly[month] = { month, revenue: 0, bookings: 0 };
+                monthly[month].revenue += r.revenue;
+                monthly[month].bookings += r.bookings;
+              });
+              const monthlyData = Object.values(monthly);
+              const maxRev = Math.max(...monthlyData.map((r) => r.revenue)) || 1;
+
+              return (
+                <div className="flex h-48 items-end gap-6 border-b border-l border-ink/10 p-2 overflow-x-auto custom-scrollbar pb-8">
+                  {monthlyData.map((d, i) => {
+                    const height = Math.max((d.revenue / maxRev) * 100, 5);
+                    return (
+                      <div key={i} className="group relative flex flex-1 flex-col items-center justify-end min-w-[40px] max-w-[100px]">
+                        <div
+                          className="w-full rounded-t-sm bg-route transition-all hover:bg-route-soft"
+                          style={{ height: `${height}%` }}
+                        ></div>
+                        <p className="mt-3 text-xs font-medium text-slate absolute top-full text-center w-full">
+                          {d.month}
+                        </p>
+                        {/* Tooltip */}
+                        <div className="absolute bottom-full mb-2 hidden whitespace-nowrap rounded bg-ink px-2 py-1 text-xs text-white group-hover:block z-10">
+                          ₹{d.revenue} ({d.bookings} bookings)
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
+                    );
+                  })}
+                </div>
+              );
+            })() : (
               <p className="text-slate">No revenue data for the selected period.</p>
             )}
           </div>
