@@ -83,14 +83,46 @@ export default function AdminReports() {
     XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
-  const exportRevenue = () => {
-    if (!revenue.length) return alert("No revenue data to export");
-    const data = revenue.map((r) => ({
-      Date: r.date,
-      Revenue: r.revenue,
-      Bookings: r.bookings,
-    }));
-    exportToExcel(data, "Revenue_Report", "Daily Revenue Report");
+  const exportRevenue = async () => {
+    try {
+      let startDate = "";
+      let endDate = new Date().toISOString().slice(0, 10);
+      const d = new Date();
+      if (dateRangeType === "7days") { d.setDate(d.getDate() - 7); startDate = d.toISOString().slice(0, 10); }
+      else if (dateRangeType === "30days") { d.setDate(d.getDate() - 30); startDate = d.toISOString().slice(0, 10); }
+      else if (dateRangeType === "monthly") { d.setDate(1); startDate = d.toISOString().slice(0, 10); }
+      else if (dateRangeType === "yearly") { d.setMonth(0, 1); startDate = d.toISOString().slice(0, 10); }
+      else if (dateRangeType === "custom") { startDate = customStart; endDate = customEnd; }
+
+      const bookings = await apiService.getDetailedBookings(startDate, endDate);
+      if (!bookings || bookings.length === 0) return alert("No revenue data to export");
+
+      const grouped = {};
+      bookings.forEach((b) => {
+        const monthYear = new Date(b.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+        const routeName = `${b.route.sourceStation.stationName} to ${b.route.destinationStation.stationName}`;
+        const ticketPrice = b.fareAmount / b.passengerCount;
+        const key = `${monthYear}|${routeName}|${ticketPrice}`;
+
+        if (!grouped[key]) {
+          grouped[key] = {
+            "Month": monthYear,
+            "Route Name": routeName,
+            "Ticket Price (₹)": ticketPrice,
+            "Tickets Booked": 0,
+            "Total Revenue (₹)": 0,
+          };
+        }
+        grouped[key]["Tickets Booked"] += b.passengerCount;
+        grouped[key]["Total Revenue (₹)"] += b.fareAmount;
+      });
+
+      const data = Object.values(grouped);
+      exportToExcel(data, "Monthly_Revenue_Report", "Monthly Revenue Report");
+    } catch (err) {
+      console.error(err);
+      alert("Error exporting revenue report");
+    }
   };
 
   const exportRoutes = () => {
