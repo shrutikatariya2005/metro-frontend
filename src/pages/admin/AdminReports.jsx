@@ -338,21 +338,24 @@ export default function AdminReports() {
               const maxRev = Math.max(...monthlyData.map((r) => r.revenue)) || 1;
 
               return (
-                <div className="flex h-48 items-end gap-6 border-b border-l border-ink/10 p-2 overflow-x-auto custom-scrollbar pb-8">
+                <div className="flex h-56 items-end gap-6 border-b border-l border-ink/10 p-2 pt-12 overflow-x-auto custom-scrollbar pb-8">
                   {monthlyData.map((d, i) => {
                     const height = Math.max((d.revenue / maxRev) * 100, 5);
                     return (
                       <div key={i} className="group relative flex h-full flex-1 flex-col items-center justify-end min-w-[40px] max-w-[100px]">
                         <div
-                          className="w-full rounded-t-sm bg-route transition-all hover:bg-route-soft"
+                          className="w-full rounded-t-sm bg-route transition-all hover:bg-route-soft cursor-pointer"
                           style={{ height: `${height}%` }}
+                          title={`Month: ${d.month} | Revenue: ₹${d.revenue} | Bookings: ${d.bookings}`}
                         ></div>
                         <p className="mt-3 text-xs font-medium text-slate absolute top-full text-center w-full">
                           {d.month}
                         </p>
-                        {/* Tooltip */}
-                        <div className="absolute bottom-full mb-2 hidden whitespace-nowrap rounded bg-ink px-2 py-1 text-xs text-white group-hover:block z-10">
-                          ₹{d.revenue} ({d.bookings} bookings)
+                        {/* Custom Tooltip */}
+                        <div className="absolute bottom-full mb-2 hidden whitespace-nowrap rounded bg-ink px-3 py-2 text-xs text-white shadow-lg group-hover:block z-50">
+                          <p className="font-bold text-amber">{d.month}</p>
+                          <p>Revenue: ₹{d.revenue}</p>
+                          <p>Bookings: {d.bookings}</p>
                         </div>
                       </div>
                     );
